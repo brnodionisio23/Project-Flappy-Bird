@@ -44,5 +44,37 @@ function PairOfBarriers(height, slit, x) {
     this.setX(x)
 }
 
-const b = new PairOfBarriers(700, 200, 400)
-document.querySelector('[wm-flappy]').appendChild(b.element)
+// const b = new PairOfBarriers(700, 200, 400)
+// document.querySelector('[wm-flappy]').appendChild(b.element)
+
+function Barriers(height, width, aperture, space, notifyPoint) {
+    this.pairs = [
+        new PairOfBarriers(height, aperture, width),
+        new PairOfBarriers(height, aperture, width + space),
+        new PairOfBarriers(height, aperture, width + space * 2),
+        new PairOfBarriers(height, aperture, width + space * 3)
+    ]
+
+    const displacement = 3
+    this.animate = () => {
+        this.pairs.forEach(pair => {
+            pair.setX(pair.getX() - displacement)
+
+            if (pair.getX() < -pair.getwidth()) {
+                pair.setX(pair.getX() + space * this.pairs.length)
+                pair.raffleSlit()
+            }
+
+            const mid = width / 2
+            const xmid = pair.getX + displacement >= mid && pair.getX < mid
+            if (xmid) notifyPoint()
+        })
+    }
+}
+
+const barriers = new Barriers(700, 1200, 200, 400)
+const gameArea = document.querySelector('[wm-flappy]')
+barriers.pairs.forEach(pair => gameArea.appendChild(pair.element))
+setInterval(() => {
+    barriers.animate()
+}, 20)
