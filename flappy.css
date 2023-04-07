@@ -60,4 +60,5 @@
     font-family: Minecraftia-Regular;
     font-size: 35px;
     color: aliceblue;
+    z-index: 100;
 }
