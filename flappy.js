@@ -15,10 +15,6 @@ function Barrier(reverse = false) {
     this.setHeight = height => barrierBody.style.height = `${height}px`
 }
 
-// const b = new Barrier(false)
-// b.setHeight(200)
-// document.querySelector('[wm-flappy]').appendChild(b.element)
-
 function PairOfBarriers(height, slit, x) {
     this.element = newElement('div', 'pair-of-barriers')
 
@@ -43,9 +39,6 @@ function PairOfBarriers(height, slit, x) {
     this.raffleSlit()
     this.setX(x)
 }
-
-// const b = new PairOfBarriers(700, 200, 400)
-// document.querySelector('[wm-flappy]').appendChild(b.element)
 
 function Barriers(height, width, aperture, space, notifyPoint) {
     this.pairs = [
@@ -110,16 +103,26 @@ function Progress() {
     this.pointUpdate(0)
 }
 
-// const barriers = new Barriers(700, 1200, 200, 400)
-// const bird = new Bird(700)
-// const gameArea = document.querySelector('[wm-flappy]')
-// gameArea.appendChild(bird.element)
-// gameArea.appendChild(new Progress().element)
-// barriers.pairs.forEach(pair => gameArea.appendChild(pair.element))
-// setInterval(() => {
-//     barriers.animate()
-//     bird.animate()
-// }, 20)
+function overlapping(elementA, elementB) {
+    const a = elementA.getBoundingClientRect()
+    const b = elementB.getBoundingClientRect()
+
+    const horizontal = a.left + a.width >= b.left && b.left + b.width >= a.left
+    const vertial = a.top + a.height >= b.top && + b.height >= a.top
+    return horizontal && vertial
+}
+
+function collision(bird, barriers) {
+    let collision = false
+    barriers.pairs.forEach(PairOfBarriers => {
+        if (!collision) {
+            const higher = PairOfBarriers.above.element
+            const bottom = PairOfBarriers.below.element
+            collision = overlapping(bird.element, higher) || overlapping(bird.element, bottom)
+        }
+    })
+    return collision
+}
 
 function FlappyBird() {
     let points = 0
@@ -140,6 +143,10 @@ function FlappyBird() {
         const temp = setInterval(() => {
             barriers.animate()
             bird.animate()
+
+            if (collision(bird, barriers)) {
+                clearInterval(temp)
+            }
         }, 20)
     }
 }
